@@ -10,16 +10,43 @@ namespace WebApplication1.Controllers
 {
     public class CarroController : Controller
     {
+
+        private static List<CarroModel> carros;
         // GET: Carro
         public ActionResult Index()
         {
-            return View(CarroModel.CriarLista());
+            return View(carros);
+        }
+
+        public CarroController()
+        {
+            carros = new List<CarroModel>()
+            {
+                new CarroModel()
+                {
+                   Marca = "VW",
+                    Modelo = "Brasilia",
+                    Ano = 1974,
+                    Cor = "amarelo",
+                    Id=1,
+                },
+                new CarroModel()
+                {
+                    Marca = "Toyota",
+                    Modelo = "Yaris",
+                    Ano = 2022,
+                    Cor = "prata",
+                    Id=2,
+                }
+            };
         }
 
         // GET: Carro/Details/5
         public ActionResult Details(int id)
         {
-            var carro = CarroModel.CriarLista()[id];
+            //var carro = CarroModel.CriarLista()[id];
+            //return View(carro);
+            var carro = carros.Find(e => e.Id == id);
             return View(carro);
         }
 
@@ -32,13 +59,19 @@ namespace WebApplication1.Controllers
         // POST: Carro/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(CarroModel collection)
+        public ActionResult Create(IFormCollection collection)
         {
             try
             {
+                var car = new CarroModel();
+                car.Marca = collection["Marca"];
+                car.Modelo = collection["Modelo"];
+                car.Ano = int.Parse(collection["Ano"]);
+                car.Cor = collection["Cor"];
+                car.Id = carros.Count + 1;
+                carros.Add(car);
+                return View("Index", carros);
                 // TODO: Add insert logic here
-
-                return RedirectToAction(nameof(Index));
             }
             catch
             {
@@ -59,9 +92,12 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                // TODO: Add update logic here
-
-                return RedirectToAction(nameof(Index));
+                var car = carros.Find(e => e.Id == id);
+                car.Ano = int.Parse(collection["Ano"]);
+                car.Cor = collection["Cor"];
+                car.Marca = collection["Marca"];
+                car.Modelo = collection["Modelo"];
+                return View("Index", carros);
             }
             catch
             {
@@ -72,7 +108,8 @@ namespace WebApplication1.Controllers
         // GET: Carro/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            var car = carros.Find(e => e.Id == id);
+            return View(car);
         }
 
         // POST: Carro/Delete/5
@@ -82,9 +119,10 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                // TODO: Add delete logic here
+                var car = carros.Find(e => e.Id == id);
+                carros.Remove(car);
 
-                return RedirectToAction(nameof(Index));
+                return View("Index", carros);
             }
             catch
             {
